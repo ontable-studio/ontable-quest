@@ -1,0 +1,12 @@
+[
+  {
+    "id": "admin_1764180869628",
+    "email": "ontablestudio@gmail.com",
+    "name": "OnTable Studio",
+    "role": "admin",
+    "status": "verified",
+    "provider": "credentials",
+    "passwordHash": "$2b$12$o7ruD8fZsO3AbTcVoS3ov.8DWrw5P7t.Z/6EHdhwHeemh5MR9kOoK",
+    "createdAt": "2025-11-26T18:14:29.628Z"
+  }
+]
