@@ -21,7 +21,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Combobox,
   ComboboxOption,
-  ComboboxGroup,
   useComboboxAsyncSearch,
 } from "@/components/ui/combobox";
 import { toast } from "sonner";
@@ -99,7 +98,10 @@ interface QuestionFormProps {
   onQuestionSubmitted?: () => void;
 }
 
-export function QuestionForm({ enableScrolling = false, onQuestionSubmitted }: QuestionFormProps) {
+export function QuestionForm({
+  enableScrolling = false,
+  onQuestionSubmitted,
+}: QuestionFormProps) {
   const [customCategories, setCustomCategories] = useState<ComboboxOption[]>(
     [],
   );

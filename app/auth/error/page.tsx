@@ -1,9 +1,16 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, RefreshCw, Info } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -16,38 +23,46 @@ function AuthErrorContent() {
       case "OAuthAccountNotLinked":
         return {
           title: "Account Already Exists",
-          message: "The email address associated with your GitHub account is already linked to an existing account. You can now sign in with GitHub using your existing account.",
-          action: "Try signing in again with GitHub"
+          message:
+            "The email address associated with your GitHub account is already linked to an existing account. You can now sign in with GitHub using your existing account.",
+          action: "Try signing in again with GitHub",
         };
       case "CredentialsSignin":
         return {
           title: "Invalid Credentials",
           message: "The email or password you entered is incorrect.",
-          action: "Try again with correct credentials"
+          action: "Try again with correct credentials",
         };
       case "AccessDenied":
         return {
           title: "Access Denied",
           message: "You do not have permission to sign in.",
-          action: "Contact support if you believe this is an error"
+          action: "Contact support if you believe this is an error",
         };
       case "Verification":
         return {
           title: "Email Verification Required",
           message: "Please verify your email address before signing in.",
-          action: "Check your email for verification link"
+          action: "Check your email for verification link",
         };
       case "Configuration":
         return {
-          title: "Configuration Error",
-          message: "There is a problem with the server configuration.",
-          action: "Contact support"
+          title: "Service Unavailable",
+          message:
+            "The authentication service is temporarily unavailable. Please try again later.",
+          action: "Try again in a few minutes or contact support",
+        };
+      case "Default":
+        return {
+          title: "Authentication Error",
+          message: "An error occurred during authentication.",
+          action: "Try signing in again",
         };
       default:
         return {
           title: "Authentication Error",
-          message: "An error occurred during authentication.",
-          action: "Try signing in again"
+          message: "An unknown error occurred during authentication.",
+          action: "Try signing in again",
         };
     }
   };
@@ -92,9 +107,14 @@ function AuthErrorContent() {
             </div>
 
             {error === "OAuthAccountNotLinked" && (
-              <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/20 p-3 rounded-md border border-blue-200 dark:border-blue-800">
-                <strong>Note:</strong> Your GitHub account has been successfully linked to your existing account. You can now use either sign-in method.
-              </div>
+              <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertDescription className="text-blue-700 dark:text-blue-300">
+                  <strong>Note:</strong> Your GitHub account has been successfully
+                  linked to your existing account. You can now use either sign-in
+                  method.
+                </AlertDescription>
+              </Alert>
             )}
           </CardContent>
         </Card>

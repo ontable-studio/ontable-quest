@@ -12,7 +12,7 @@ export function useAuth() {
   };
 }
 
-export function requireAuth(callback?: () => void) {
+export function useRequireAuth(callback?: () => void) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -27,7 +27,7 @@ export function requireAuth(callback?: () => void) {
   return true;
 }
 
-export function requireAdmin(callback?: () => void) {
+export function useRequireAdmin(callback?: () => void) {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
 
   if (isLoading) {

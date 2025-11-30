@@ -1,33 +1,17 @@
-"use client"
+"use client";
 
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useEffect, useState } from "react"
+} from "@/components/ui/dropdown-menu";
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Prevent hydration mismatch by only rendering after mount
-  if (!mounted) {
-    return (
-      <Button variant="outline" size="icon" disabled>
-        <Sun className="h-[1.2rem] w-[1.2rem]" />
-        <span className="sr-only">Toggle theme</span>
-      </Button>
-    )
-  }
+  const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -50,5 +34,5 @@ export function ThemeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

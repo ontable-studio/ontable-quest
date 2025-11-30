@@ -210,6 +210,29 @@ export async function updateUserStatus(userId: string, status: UserStatus): Prom
   }
 }
 
+export async function updateUserProfile(userId: string, updateData: { name?: string; avatar?: string }): Promise<{ success: boolean; error?: string }> {
+  try {
+    const existingUser = await redis.hgetall(`user:${userId}`);
+    if (!existingUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    // Only update the fields that are provided
+    const updatedUser = { ...existingUser };
+    if (updateData.name !== undefined) updatedUser.name = updateData.name;
+    if (updateData.avatar !== undefined) updatedUser.avatar = updateData.avatar;
+
+    await redis.hset(`user:${userId}`, updatedUser);
+
+    revalidatePath("/dashboard");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update user profile:", error);
+    return { success: false, error: "Failed to update user profile" };
+  }
+}
+
 export async function getAllUsers(): Promise<User[]> {
   try {
     const keys = await redis.keys("user:*");

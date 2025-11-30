@@ -121,17 +121,44 @@ export const authConfig: NextAuthConfig = {
       if (!user.email) return false;
 
       try {
+        console.log("SignIn callback - Provider:", account?.provider, "Email:", user.email);
+
         // Check if user exists
         const existingUser = await getUserByEmail(user.email);
+        console.log("Existing user:", existingUser ? existingUser.id : "Not found");
 
         if (!existingUser && account?.provider === 'github') {
-          // Auto-verify GitHub users
+          // Auto-verify GitHub users - create new user
+          console.log("Creating new GitHub user");
           await createGitHubUser(user, account);
         } else if (existingUser && account?.provider === 'github') {
-          // Link GitHub account to existing user
-          // The adapter will handle creating the account linkage
-          console.log("Linking GitHub account to existing user:", existingUser.id);
-          return true;
+          // Check if GitHub account is already linked
+          const accountKey = `account:github:${account.providerAccountId}`;
+          const linkedUserId = await redis.get(accountKey);
+          console.log("Account key:", accountKey, "Linked user ID:", linkedUserId);
+
+          if (!linkedUserId) {
+            // GitHub account not linked - link it to existing user
+            console.log("Linking GitHub account to existing user:", existingUser.id);
+            await redis.set(accountKey, existingUser.id);
+
+            // Update user with GitHub info
+            await redis.hset(`user:${existingUser.id}`, {
+              ...existingUser,
+              provider: 'github',
+              providerAccountId: account.providerAccountId,
+              avatar: user.image || existingUser.avatar,
+              name: user.name || existingUser.name,
+              lastLoginAt: new Date().toISOString(),
+            });
+          } else {
+            console.log("GitHub account already linked to user:", linkedUserId);
+            // Update last login time
+            await redis.hset(`user:${existingUser.id}`, {
+              ...existingUser,
+              lastLoginAt: new Date().toISOString(),
+            });
+          }
         }
 
         return true;

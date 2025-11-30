@@ -3,6 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth/client-utils";
+import { ChangeProfileDialog } from "@/components/change-profile-dialog";
+import { ChangeEmailDialog } from "@/components/change-email-dialog";
+import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import {
   Card,
   CardContent,
@@ -14,22 +17,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
-  User,
+  User as UserIcon,
   Mail,
   Settings,
-  Calendar,
   Shield,
   LogOut,
   MessageSquare,
   Heart,
-  BarChart3,
   TrendingUp,
-  Users,
   Zap,
   Clock,
   Star,
@@ -53,12 +55,9 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  // Loading state is now handled by loading.tsx
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">Loading...</div>
-      </div>
-    );
+    return null;
   }
 
   if (!isAuthenticated || !user) {
@@ -66,7 +65,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20">
       <div className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:py-8 lg:px-8">
         <div className="space-y-6 sm:space-y-8">
           {/* Header with welcome message */}
@@ -76,7 +75,7 @@ export default function DashboardPage() {
                 Welcome back, {user.name?.split(" ")[0] || "User"}! 👋
               </h1>
               <p className="text-base sm:text-lg text-muted-foreground mt-2">
-                Here's what's happening with your account today
+                Here&apos;s what&apos;s happening with your account today
               </p>
             </div>
             <Button
@@ -93,75 +92,77 @@ export default function DashboardPage() {
           </div>
 
           {/* Enhanced User Profile Card with Integrated Actions */}
-          <Card className="border-0 shadow-lg bg-gradient-to-r from-card to-card/80 backdrop-blur">
+          <Card className="border-0 shadow-lg bg-linear-to-r from-card to-card/80 backdrop-blur">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between gap-4">
                 <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
                   <div className="p-2 bg-primary/10 rounded-lg">
-                    <User className="h-5 w-5 text-primary" />
+                    <UserIcon className="h-5 w-5 text-primary" />
                   </div>
                   Profile Overview
                 </CardTitle>
 
-                {/* Account Settings Popover */}
-                <Popover>
-                  <PopoverTrigger asChild>
+                {/* Account Settings Dropdown Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm" className="gap-2">
                       <Settings />
                       <span className="hidden sm:inline">Account Settings</span>
                       <ChevronDown className="h-3 w-3" />
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64" align="end">
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm">Account Settings</h4>
-                      <div className="space-y-1">
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-8 px-2"
-                        >
-                          <Edit />
-                          Edit Profile
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-8 px-2"
-                        >
-                          <Mail />
-                          Change Email
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-8 px-2"
-                        >
-                          <Key />
-                          Change Password
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-8 px-2"
-                        >
-                          <Bell />
-                          Notifications
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-8 px-2"
-                        >
-                          <ShieldCheck />
-                          Privacy & Security
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-8 px-2"
-                        >
-                          <HelpCircle />
-                          Help & Support
-                        </Button>
-                      </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end">
+                    <div className="px-2 py-1.5 text-sm font-medium">
+                      Account Settings
                     </div>
-                  </PopoverContent>
-                </Popover>
+                    <DropdownMenuSeparator />
+                    {user && (
+                      <ChangeProfileDialog user={user}>
+                        <DropdownMenuItem
+                          className="gap-2 cursor-pointer"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Edit className="h-4 w-4" />
+                          Edit Profile
+                        </DropdownMenuItem>
+                      </ChangeProfileDialog>
+                    )}
+                    {user && (
+                      <ChangeEmailDialog user={user}>
+                        <DropdownMenuItem
+                          className="gap-2 cursor-pointer"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Mail className="h-4 w-4" />
+                          Change Email
+                        </DropdownMenuItem>
+                      </ChangeEmailDialog>
+                    )}
+                    {user && (
+                      <ChangePasswordDialog user={user}>
+                        <DropdownMenuItem
+                          className="gap-2 cursor-pointer"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Key className="h-4 w-4" />
+                          Change Password
+                        </DropdownMenuItem>
+                      </ChangePasswordDialog>
+                    )}
+                    <DropdownMenuItem className="gap-2 cursor-pointer">
+                      <Bell className="h-4 w-4" />
+                      Notifications
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2 cursor-pointer">
+                      <ShieldCheck className="h-4 w-4" />
+                      Privacy & Security
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2 cursor-pointer">
+                      <HelpCircle className="h-4 w-4" />
+                      Help & Support
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
@@ -173,15 +174,15 @@ export default function DashboardPage() {
                 <div className="flex justify-center">
                   <div className="relative group">
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse opacity-75 blur-sm"></div>
-                      <div className="relative bg-gradient-to-br from-background to-muted rounded-full p-1 shadow-2xl transform transition-transform duration-300 group-hover:scale-105">
+                      <div className="absolute inset-0 rounded-full bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse opacity-75 blur-sm"></div>
+                      <div className="relative bg-linear-to-br from-background to-muted rounded-full p-1 shadow-2xl transform transition-transform duration-300 group-hover:scale-105">
                         <Avatar className="h-20 w-20 rounded-full border-4 border-background/50 backdrop-blur-sm shadow-inner">
                           <AvatarImage
                             src={user.avatar || ""}
                             alt={user.name || ""}
                             className="object-cover"
                           />
-                          <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-primary via-purple-600 to-pink-600 text-white shadow-inner flex items-center justify-center">
+                          <AvatarFallback className="text-lg font-bold bg-linear-to-br from-primary via-purple-600 to-pink-600 text-white shadow-inner flex items-center justify-center">
                             {user.name?.charAt(0)?.toUpperCase() ||
                               user.email?.charAt(0)?.toUpperCase() ||
                               "U"}
@@ -205,7 +206,7 @@ export default function DashboardPage() {
                 <div className="text-center space-y-4">
                   <div>
                     <div className="flex flex-col items-center gap-2">
-                      <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                      <h3 className="text-xl font-bold bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         {user.name || "Anonymous User"}
                       </h3>
                       {user.status === "verified" && (
@@ -277,18 +278,18 @@ export default function DashboardPage() {
               {/* Tablet & Desktop Layout - Side-by-side */}
               <div className="hidden sm:flex items-start gap-6">
                 {/* Avatar Section */}
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="relative group">
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse opacity-75 blur-sm"></div>
-                      <div className="relative bg-gradient-to-br from-background to-muted rounded-full p-1 shadow-2xl transform transition-transform duration-300 group-hover:scale-105">
+                      <div className="absolute inset-0 rounded-full bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse opacity-75 blur-sm"></div>
+                      <div className="relative bg-linear-to-br from-background to-muted rounded-full p-1 shadow-2xl transform transition-transform duration-300 group-hover:scale-105">
                         <Avatar className="h-24 w-24 lg:h-28 lg:w-28 rounded-full border-4 border-background/50 backdrop-blur-sm shadow-inner">
                           <AvatarImage
                             src={user.avatar || ""}
                             alt={user.name || ""}
                             className="object-cover"
                           />
-                          <AvatarFallback className="text-xl lg:text-2xl font-bold bg-gradient-to-br from-primary via-purple-600 to-pink-600 text-white shadow-inner flex items-center justify-center">
+                          <AvatarFallback className="text-xl lg:text-2xl font-bold bg-linear-to-br from-primary via-purple-600 to-pink-600 text-white shadow-inner flex items-center justify-center">
                             {user.name?.charAt(0)?.toUpperCase() ||
                               user.email?.charAt(0)?.toUpperCase() ||
                               "U"}
@@ -312,7 +313,7 @@ export default function DashboardPage() {
                 <div className="flex-1 space-y-4">
                   <div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                      <h3 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                      <h3 className="text-2xl lg:text-3xl font-bold bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         {user.name || "Anonymous User"}
                       </h3>
                       {user.status === "verified" && (
@@ -412,7 +413,7 @@ export default function DashboardPage() {
 
           {/* Activity Stats */}
           <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="border-0 shadow-md bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
+            <Card className="border-0 shadow-md bg-linear-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -430,7 +431,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20">
+            <Card className="border-0 shadow-md bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -448,7 +449,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20">
+            <Card className="border-0 shadow-md bg-linear-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -466,7 +467,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20">
+            <Card className="border-0 shadow-md bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>

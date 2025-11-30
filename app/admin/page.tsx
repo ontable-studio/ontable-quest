@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 import { AdminStats, User, Question } from "@/types/common";
 import {
   Card,
@@ -18,7 +21,6 @@ import {
   CheckCircle,
   Users,
   MessageSquare,
-  ThumbsUp,
   ThumbsDown,
   Shield,
   UserCheck,
@@ -27,16 +29,12 @@ import {
   Settings,
   BarChart3,
   Activity,
-  Star,
   TrendingUp,
   Search,
   Filter,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-
-// Mock admin user ID - in a real app, this would come from authentication
-const ADMIN_USER_ID = "admin_123";
 
 // Categories for filtering
 const CATEGORIES = [
@@ -65,19 +63,6 @@ interface UserFilters {
   role: string;
   status: string;
 }
-
-// Custom debounce function
-const debounce = (func: Function, wait: number) => {
-  let timeout: NodeJS.Timeout;
-  return function executedFunction(...args: any[]) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
 
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -158,7 +143,9 @@ export default function AdminPage() {
         toast.success(`User ${newStatus} successfully`);
         setUsers(
           users.map((user) =>
-            user.id === userId ? { ...user, status: newStatus as any } : user,
+            user.id === userId
+              ? { ...user, status: newStatus as User["status"] }
+              : user,
           ),
         );
       } else {
@@ -185,7 +172,9 @@ export default function AdminPage() {
         toast.success(`User role updated to ${newRole}`);
         setUsers(
           users.map((user) =>
-            user.id === userId ? { ...user, role: newRole as any } : user,
+            user.id === userId
+              ? { ...user, role: newRole as User["role"] }
+              : user,
           ),
         );
       } else {
@@ -249,29 +238,27 @@ export default function AdminPage() {
   };
 
   // Filter functions
-  const debouncedQuestionSearch = useCallback(
-    debounce((value: string) => {
-      setQuestionFilters((prev) => ({ ...prev, search: value }));
-    }, 300),
-    [],
+  const handleQuestionSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const timeoutId = setTimeout(() => {
+        setQuestionFilters((prev) => ({ ...prev, search: value }));
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    },
+    [setQuestionFilters],
   );
 
-  const debouncedUserSearch = useCallback(
-    debounce((value: string) => {
-      setUserFilters((prev) => ({ ...prev, search: value }));
-    }, 300),
-    [],
+  const handleUserSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const timeoutId = setTimeout(() => {
+        setUserFilters((prev) => ({ ...prev, search: value }));
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    },
+    [setUserFilters],
   );
-
-  const handleQuestionSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    debouncedQuestionSearch(e.target.value);
-  };
-
-  const handleUserSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedUserSearch(e.target.value);
-  };
 
   const clearQuestionFilters = () => {
     setQuestionFilters({ search: "", category: "", status: "" });
@@ -693,7 +680,7 @@ export default function AdminPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col flex-1 min-h-0 px-6">
-                      <div className="flex items-center justify-between text-sm text-muted-foreground flex-shrink-0 mb-4">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground shrink-0 mb-4">
                         <span>
                           Showing {getFilteredQuestions().length} of{" "}
                           {questions.length} Questions
@@ -757,7 +744,7 @@ export default function AdminPage() {
                           </div>
                         ) : (
                           Array.isArray(getFilteredQuestions()) &&
-                          getFilteredQuestions().map((question, index) => (
+                          getFilteredQuestions().map((question) => (
                             <div
                               key={question.id}
                               className="border rounded-lg p-4 hover:border-primary/20 transition-colors mb-4"
@@ -1069,7 +1056,7 @@ export default function AdminPage() {
                         </div>
                       ) : (
                         Array.isArray(getFilteredUsers()) &&
-                        getFilteredUsers().map((user, index) => (
+                        getFilteredUsers().map((user) => (
                           <div
                             key={user.id}
                             className="border rounded-lg p-4 hover:border-primary/20 transition-colors mb-4"

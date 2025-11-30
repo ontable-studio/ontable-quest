@@ -115,6 +115,13 @@ export function UpstashAdapter(): Adapter {
       const accountKey = `account:${account.provider}:${account.providerAccountId}`;
       const userAccountKey = `user:${account.userId}:accounts`;
 
+      console.log("Adapter linking account:", {
+        provider: account.provider,
+        providerAccountId: account.providerAccountId,
+        userId: account.userId,
+        accountKey
+      });
+
       await redis.set(accountKey, account.userId);
       await redis.hset(userAccountKey, {
         [`${account.provider}:${account.providerAccountId}`]: JSON.stringify(account),
@@ -128,6 +135,7 @@ export function UpstashAdapter(): Adapter {
           provider: account.provider as any,
           providerAccountId: account.providerAccountId,
         });
+        console.log("Updated user provider info for:", account.userId);
       }
     },
 

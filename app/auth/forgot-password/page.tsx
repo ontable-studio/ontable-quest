@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -81,12 +80,12 @@ export default function ForgotPasswordPage() {
               <div>
                 <h2 className="text-2xl font-bold">Check Your Email</h2>
                 <p className="text-muted-foreground mt-2">
-                  We've sent password reset instructions to{" "}
+                  We&apos;ve sent password reset instructions to{" "}
                   <span className="font-medium">{successEmail}</span>
                 </p>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>Didn't receive the email?</p>
+                <p>Didn&apos;t receive the email?</p>
                 <ul className="text-left space-y-1">
                   <li>• Check your spam folder</li>
                   <li>• Make sure the email address is correct</li>
@@ -125,7 +124,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold">Forgot Password?</h1>
           <p className="text-muted-foreground mt-2">
-            No worries, we'll send you reset instructions.
+            No worries, we&apos;ll send you reset instructions.
           </p>
         </div>
 
@@ -136,8 +135,8 @@ export default function ForgotPasswordPage() {
               Reset Password
             </CardTitle>
             <CardDescription>
-              Enter your email address and we'll send you a link to reset your
-              password.
+              Enter your email address and we&apos;ll send you a link to reset
+              your password.
             </CardDescription>
           </CardHeader>
           <CardContent>

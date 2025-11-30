@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquare, Shield, LogOut, Settings } from "lucide-react";
+import { Shield, LogOut, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,6 +15,7 @@ import {
 import { ThemeToggleWrapper } from "@/components/theme-toggle-wrapper";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 
 // Animation variants for the navbar
@@ -73,7 +74,13 @@ export function Navbar() {
                   ease: "easeInOut",
                 }}
               >
-                <MessageSquare className="h-5 w-5" />
+                <Image
+                  src="/images/logo/ontable-transparent.svg"
+                  alt="OnTable Logo"
+                  width={56}
+                  height={56}
+                  className="object-contain"
+                />
               </motion.div>
               <h1 className="text-lg font-semibold">{getpageTitle()}</h1>
             </Link>

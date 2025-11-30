@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +29,7 @@ import {
   type ResetPasswordValues,
 } from "@/lib/validations/auth";
 
-function ResetPasswordForm() {
+export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -236,16 +236,3 @@ function ResetPasswordForm() {
   );
 }
 
-export default function ResetPasswordPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center">Loading...</div>
-        </div>
-      }
-    >
-      <ResetPasswordForm />
-    </Suspense>
-  );
-}

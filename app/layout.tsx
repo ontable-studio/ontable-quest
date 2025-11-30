@@ -60,15 +60,9 @@ export const metadata: Metadata = {
     siteName: appName,
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: `${appName} - Q&A Platform`,
-      },
-      {
-        url: "/og-image-square.png",
-        width: 1200,
-        height: 1200,
+        url: "/images/logo/ontable-transparent.svg",
+        width: 947,
+        height: 458,
         alt: `${appName} Logo`,
       },
     ],
@@ -94,16 +88,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-    other: [
-      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#5bbad5" },
-    ],
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/manifest.json",
   verification: {

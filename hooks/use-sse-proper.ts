@@ -27,6 +27,9 @@ export function useSSEProper(options: UseSSEOptions = {}) {
   const MAX_RECONNECT_ATTEMPTS = 5;
   const RECONNECT_DELAY = 1000;
 
+  // Store connect function in ref to avoid closure issues
+  const connectRef = useRef<(() => void) | null>(null);
+
   const connect = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -69,7 +72,8 @@ export function useSSEProper(options: UseSSEOptions = {}) {
 
           reconnectTimeoutRef.current = setTimeout(() => {
             console.log(`Attempting to reconnect (${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
-            connect();
+            // Use ref to access latest connect function
+            connectRef.current?.();
           }, delay);
         } else {
           console.error('Max reconnection attempts reached');
@@ -79,7 +83,12 @@ export function useSSEProper(options: UseSSEOptions = {}) {
       console.error('Failed to create SSE connection:', error);
       options.onError?.(error as Event);
     }
-  }, [options]);
+  }, [options.onConnect, options.onError, options.onNewQuestion]);
+
+  // Store connect function in ref
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -94,7 +103,7 @@ export function useSSEProper(options: UseSSEOptions = {}) {
 
     setIsConnected(false);
     options.onDisconnect?.();
-  }, [options]);
+  }, [options.onDisconnect]);
 
   // Auto-connect on mount only if autoConnect is true
   useEffect(() => {

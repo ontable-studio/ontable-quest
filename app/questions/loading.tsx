@@ -43,114 +43,12 @@ const cardVariants = {
   },
 };
 
-// Background effects component
-const BackgroundEffects = () => (
-  <>
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-primary/2 via-primary/4 to-primary/2"
-      animate={{
-        opacity: [0.1, 0.2, 0.1],
-        scale: [0.95, 1.05, 0.95],
-      }}
-      transition={{
-        duration: 4,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut",
-      }}
-      style={{
-        filter: "blur(40px)",
-        zIndex: 0,
-      }}
-    />
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-l from-secondary/2 via-secondary/4 to-secondary/2"
-      animate={{
-        opacity: [0.08, 0.15, 0.08],
-        scale: [1.05, 0.95, 1.05],
-      }}
-      transition={{
-        duration: 5,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut",
-      }}
-      style={{
-        filter: "blur(60px)",
-        zIndex: 0,
-      }}
-    />
-  </>
-);
 
 export default function QuestionsLoading() {
   return (
-    <div className="min-h-screen bg-background font-sans overflow-x-hidden">
-      <BackgroundEffects />
-      <main className="container mx-auto py-8 px-4 relative z-10">
+    <div className="min-h-screen bg-background font-sans overflow-hidden">
+      <main className="container mx-auto py-8 px-4">
         <div className="space-y-8">
-          {/* Hero Section */}
-          <motion.div
-            className="relative"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-          >
-            <motion.section className="text-center space-y-4 relative z-20">
-              <motion.div className="space-y-6" variants={itemVariants}>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Badge variant="secondary" className="inline-flex">
-                    <MessageSquare />
-                    Loading Questions
-                  </Badge>
-                </motion.div>
-
-                <motion.div className="relative py-12" variants={itemVariants}>
-                  {/* Background Glow */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-primary/3 via-primary/6 to-primary/3 rounded-2xl blur-2xl -z-10"
-                    animate={{ opacity: [0.3, 0.5, 0.3] }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-
-                  {/* Main Heading */}
-                  <motion.h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-center text-foreground relative z-20">
-                    Questions & Answers
-                  </motion.h1>
-                  <motion.p
-                    className="mx-auto max-w-[700px] text-muted-foreground text-lg mt-4"
-                    variants={itemVariants}
-                  >
-                    Discover questions from our community. Loading the latest
-                    discussions for you...
-                  </motion.p>
-                </motion.div>
-              </motion.div>
-
-              <motion.div
-                className="flex justify-center"
-                variants={itemVariants}
-              >
-                <motion.div
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Badge variant="outline" className="animate-pulse">
-                    <Sparkles />
-                    Loading...
-                  </Badge>
-                </motion.div>
-              </motion.div>
-            </motion.section>
-          </motion.div>
-
           {/* Main Q&A Section Skeleton */}
           <motion.section
             className="flex flex-col gap-8 lg:flex-row lg:items-start"
@@ -237,7 +135,7 @@ export default function QuestionsLoading() {
                   </CardHeader>
                 </motion.div>
                 <CardContent className="flex flex-col flex-1 min-h-0 px-6">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground flex-shrink-0 mb-4">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground shrink-0 mb-4">
                     <Skeleton className="h-4 w-16" />
                     <div className="flex items-center gap-2">
                       <motion.div

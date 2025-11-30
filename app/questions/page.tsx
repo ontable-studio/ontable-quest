@@ -9,8 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { QuestionsList } from "@/components/questions/questions-list";
-import { InfiniteQuestionsList } from "@/components/questions/infinite-questions-list";
+import {
+  SimpleScrollList,
+  InfiniteScrollList,
+} from "@/components/questions/questions-list-main";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Users } from "lucide-react";
 import QuestionsLoading from "./loading";
@@ -27,18 +29,6 @@ const containerVariants = {
     transition: {
       staggerChildren: 0.1,
       delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1] as const,
     },
   },
 };
@@ -160,10 +150,11 @@ export default function QuestionsPage() {
               </motion.div>
               <CardContent className="flex flex-col flex-1 min-h-0 px-6">
                 <Suspense fallback={<QuestionsLoading />}>
-                  <QuestionsList
-                    autoRefresh={false}
-                    refreshInterval={5000}
+                  <SimpleScrollList
+                    autoRefresh={true}
                     currentUserId={userId || undefined}
+                    showHeader={false}
+                    showSearch={false}
                   />
                 </Suspense>
               </CardContent>
@@ -180,9 +171,8 @@ export default function QuestionsPage() {
           transition={{ delay: 0.5 }}
         >
           <Suspense fallback={<QuestionsLoading />}>
-            <InfiniteQuestionsList
+            <InfiniteScrollList
               autoRefresh={false}
-              refreshInterval={10000}
               currentUserId={userId || undefined}
             />
           </Suspense>

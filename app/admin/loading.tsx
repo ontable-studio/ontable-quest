@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Settings,
@@ -16,23 +9,23 @@ import {
   Users,
   BarChart3,
   Activity,
-  Star,
   TrendingUp,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
 
 // Static background effects component
 const BackgroundEffects = () => (
   <>
     <div
-      className="absolute inset-0 bg-gradient-to-r from-primary/2 via-primary/4 to-primary/2"
+      className="absolute inset-0 bg-linear-to-r from-primary/2 via-primary/4 to-primary/2"
       style={{
         filter: "blur(40px)",
         zIndex: 0,
       }}
     />
     <div
-      className="absolute inset-0 bg-gradient-to-l from-secondary/2 via-secondary/4 to-secondary/2"
+      className="absolute inset-0 bg-linear-to-l from-secondary/2 via-secondary/4 to-secondary/2"
       style={{
         filter: "blur(60px)",
         zIndex: 0,
@@ -60,7 +53,7 @@ export default function AdminLoading() {
 
                 <div className="relative py-12">
                   {/* Background Glow */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/3 via-primary/6 to-primary/3 rounded-2xl blur-2xl -z-10" />
+                  <div className="absolute inset-0 bg-linear-to-r from-primary/3 via-primary/6 to-primary/3 rounded-2xl blur-2xl -z-10" />
 
                   {/* Main Heading Skeleton */}
                   <div className="space-y-4">
@@ -179,7 +172,7 @@ export default function AdminLoading() {
                   <Skeleton className="h-4 w-full mt-2" />
                 </CardHeader>
                 <CardContent className="flex flex-col flex-1 min-h-0 px-6">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground flex-shrink-0 mb-4">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground shrink-0 mb-4">
                     <Skeleton className="h-4 w-24" />
                     <div className="flex items-center gap-2">
                       <Skeleton className="h-2 w-2 rounded-full" />
@@ -276,6 +269,14 @@ export default function AdminLoading() {
           </section>
         </div>
       </main>
+
+      {/* Loading indicator overlay */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <div className="flex items-center gap-2 bg-background border rounded-lg px-3 py-2 shadow-lg">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="text-sm font-medium">Loading Admin Panel...</span>
+        </div>
+      </div>
     </div>
   );
 }

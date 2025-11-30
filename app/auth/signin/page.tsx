@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -28,7 +28,7 @@ import { Github, Mail, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { signInSchema, type SignInValues } from "@/lib/validations/auth";
 
-function SignInContent() {
+export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -56,8 +56,8 @@ function SignInContent() {
         toast.error("Invalid credentials. Please try again.");
       } else {
         toast.success("Successfully signed in!");
-        await router.push(callbackUrl);
-        await router.refresh();
+        router.push(callbackUrl);
+        router.refresh();
       }
     } catch (error) {
       toast.error("An error occurred during sign in.");
@@ -165,7 +165,7 @@ function SignInContent() {
                 Forgot your password?
               </Link>
               <div className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/auth/signup"
                   className="text-primary hover:underline"
@@ -181,16 +181,3 @@ function SignInContent() {
   );
 }
 
-export default function SignInPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          Loading...
-        </div>
-      }
-    >
-      <SignInContent />
-    </Suspense>
-  );
-}

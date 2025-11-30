@@ -1,8 +1,8 @@
 "use client";
 
-import React, { memo, useMemo, useCallback, useRef } from "react";
+import React, { memo, useMemo, useCallback } from "react";
 import { QuestionForm } from "@/components/forms/question-form";
-import { QuestionsList } from "@/components/questions/questions-list";
+import { SimpleScrollList } from "@/components/questions/questions-list-main";
 import { Suspense } from "react";
 import QuestionsLoading from "@/app/questions/loading";
 import { useSession } from "next-auth/react";
@@ -205,10 +205,28 @@ const IconAnimation = memo(({ index }: { index: number }) => {
     [rightValues.size],
   );
 
+  // Use a dynamic import approach to prevent server-side rendering of animations
+  // This avoids hydration mismatches while keeping animations on client
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Don't render animations on server to prevent hydration mismatch
-  // Use typeof window check which is the recommended approach for hydration
-  if (typeof window === "undefined") {
-    return null;
+  if (!isClient) {
+    return (
+      <React.Fragment key={`icon-pair-${index}`}>
+        <div
+          className="absolute left-1/2 top-1/2 hidden lg:block"
+          style={{ zIndex: 1, opacity: 0 }}
+        />
+        <div
+          className="absolute left-1/2 top-1/2 hidden lg:block"
+          style={{ zIndex: 1, opacity: 0 }}
+        />
+      </React.Fragment>
+    );
   }
 
   return (
@@ -242,7 +260,7 @@ const IconAnimation = memo(({ index }: { index: number }) => {
           type: "tween",
           times: [0, 0.5, 1],
         }}
-        style={{ zIndex: 1 }}
+        style={{ zIndex: 1, willChange: "transform" }}
       >
         <Icon
           className="text-primary opacity-70"
@@ -280,7 +298,7 @@ const IconAnimation = memo(({ index }: { index: number }) => {
           type: "tween",
           times: [0, 0.5, 1],
         }}
-        style={{ zIndex: 1 }}
+        style={{ zIndex: 1, willChange: "transform" }}
       >
         <Icon
           className="text-primary opacity-70"
@@ -294,14 +312,14 @@ const IconAnimation = memo(({ index }: { index: number }) => {
 
 IconAnimation.displayName = "IconAnimation";
 
-// Memoized background effects
+// Memoized background effects - optimized with blur filter
 const BackgroundEffects = memo(() => (
   <>
     <motion.div
       className="absolute inset-0 bg-linear-to-r from-primary/2 via-primary/4 to-primary/2"
       animate={{
         opacity: [0.1, 0.2, 0.1],
-        scale: [0.95, 1.05, 0.95],
+        scale: [0.98, 1.02, 0.98],
       }}
       transition={{
         duration: 4,
@@ -312,13 +330,14 @@ const BackgroundEffects = memo(() => (
       style={{
         filter: "blur(40px)",
         zIndex: 0,
+        willChange: "transform, opacity",
       }}
     />
     <motion.div
       className="absolute inset-0 bg-linear-to-l from-secondary/2 via-secondary/4 to-secondary/2"
       animate={{
         opacity: [0.08, 0.15, 0.08],
-        scale: [1.05, 0.95, 1.05],
+        scale: [1.02, 0.98, 1.02],
       }}
       transition={{
         duration: 5,
@@ -329,6 +348,7 @@ const BackgroundEffects = memo(() => (
       style={{
         filter: "blur(60px)",
         zIndex: 0,
+        willChange: "transform, opacity",
       }}
     />
   </>
@@ -336,7 +356,7 @@ const BackgroundEffects = memo(() => (
 
 BackgroundEffects.displayName = "BackgroundEffects";
 
-// Memoized central pulse effect
+// Memoized central pulse effect - optimized with blur filter
 const CentralPulse = memo(() => (
   <motion.div
     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -349,6 +369,9 @@ const CentralPulse = memo(() => (
       repeat: Infinity,
       repeatType: "reverse",
       ease: "easeInOut",
+    }}
+    style={{
+      willChange: "transform, opacity",
     }}
   >
     <div
@@ -368,8 +391,13 @@ const FAQSection = memo(() => (
     initial={{ opacity: 0, y: 50 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.8, delay: 1.8 }}
+    style={{ willChange: "transform" }}
   >
-    <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.3 }}>
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.3 }}
+      style={{ willChange: "transform" }}
+    >
       <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
         <motion.div
           initial={{ opacity: 0 }}
@@ -385,6 +413,7 @@ const FAQSection = memo(() => (
                   repeat: Infinity,
                   ease: "linear",
                 }}
+                style={{ willChange: "transform" }}
               >
                 <MessageSquare className="h-5 w-5" />
               </motion.div>
@@ -426,7 +455,6 @@ export default function Home() {
   const router = useRouter();
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const questionsListRef = useRef<{ handleRefresh: () => void }>(null);
 
   // Memoized callbacks to prevent recreation on every render
   const scrollToForm = useCallback(() => {
@@ -440,13 +468,10 @@ export default function Home() {
   }, [router]);
 
   // Function to refresh the questions list after submission
-  const refreshQuestionsList = useCallback(() => {
-    questionsListRef.current?.handleRefresh();
-  }, []);
 
-  // Memoized icon animations array - always use 15 to avoid hydration mismatch
+  // Memoized icon animations array - reduced from 15 to 6 for better performance
   const iconAnimations = useMemo(
-    () => Array.from({ length: 15 }, (_, i) => i),
+    () => Array.from({ length: 6 }, (_, i) => i),
     [],
   );
 
@@ -457,12 +482,12 @@ export default function Home() {
           {/* Hero Section with Animation */}
           <div className="relative">
             {/* Spreading Icons Animation - Behind heading */}
-            <div className="absolute inset-x-0 top-0 h-[50vh] pointer-events-none z-10 overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-[50vh] pointer-events-none z-10">
               <motion.div
                 className="absolute inset-0 bg-linear-to-r from-primary/2 via-primary/4 to-primary/2"
                 animate={{
                   opacity: [0.1, 0.2, 0.1],
-                  scale: [0.95, 1.05, 0.95],
+                  scale: [0.98, 1.02, 0.98],
                 }}
                 transition={{
                   duration: 4,
@@ -473,13 +498,14 @@ export default function Home() {
                 style={{
                   filter: "blur(40px)",
                   zIndex: 0,
+                  willChange: "transform, opacity",
                 }}
               />
               <motion.div
                 className="absolute inset-0 bg-linear-to-l from-secondary/2 via-secondary/4 to-secondary/2"
                 animate={{
                   opacity: [0.08, 0.15, 0.08],
-                  scale: [1.05, 0.95, 1.05],
+                  scale: [1.02, 0.98, 1.02],
                 }}
                 transition={{
                   duration: 5,
@@ -490,6 +516,7 @@ export default function Home() {
                 style={{
                   filter: "blur(60px)",
                   zIndex: 0,
+                  willChange: "transform, opacity",
                 }}
               />
 
@@ -524,14 +551,18 @@ export default function Home() {
 
                 {/* Enhanced Header with Decorative Icons */}
                 <motion.div className="relative py-12" variants={textVariants}>
-                  {/* Subtle Background Glow */}
+                  {/* Subtle Background Glow - optimized */}
                   <motion.div
-                    className="absolute inset-0 bg-linear-to-r from-primary/3 via-primary/6 to-primary/3 rounded-2xl blur-2xl -z-10"
+                    className="absolute inset-0 bg-linear-to-r from-primary/3 via-primary/6 to-primary/3 rounded-2xl -z-10"
                     animate={{ opacity: [0.3, 0.5, 0.3] }}
                     transition={{
                       duration: 6,
                       repeat: Infinity,
                       ease: "easeInOut",
+                    }}
+                    style={{
+                      willChange: "opacity",
+                      filter: "blur(80px)",
                     }}
                   />
 
@@ -545,9 +576,13 @@ export default function Home() {
                       transition={{ delay: 0.4, duration: 0.6 }}
                     >
                       <motion.div
-                        className="h-0.5 w-12 bg-linear-to-r from-transparent to-primary"
-                        animate={{ width: ["0px", "128px", "128px"] }}
+                        className="h-0.5 w-32 bg-linear-to-r from-transparent to-primary"
+                        animate={{ scaleX: [0, 1, 1] }}
                         transition={{ duration: 1.5, delay: 0.5 }}
+                        style={{
+                          transformOrigin: "left",
+                          willChange: "transform",
+                        }}
                       />
                       <motion.div
                         animate={{ scale: [1, 1.1, 1] }}
@@ -556,13 +591,18 @@ export default function Home() {
                           repeat: Infinity,
                           delay: 0.8,
                         }}
+                        style={{ willChange: "transform" }}
                       >
                         <Star className="h-4 w-4 text-primary" />
                       </motion.div>
                       <motion.div
-                        className="h-0.5 w-12 bg-linear-to-l from-transparent to-primary"
-                        animate={{ width: ["0px", "128px", "128px"] }}
+                        className="h-0.5 w-32 bg-linear-to-l from-transparent to-primary"
+                        animate={{ scaleX: [0, 1, 1] }}
                         transition={{ duration: 1.5, delay: 0.7 }}
+                        style={{
+                          transformOrigin: "right",
+                          willChange: "transform",
+                        }}
                       />
                     </motion.div>
 
@@ -592,9 +632,13 @@ export default function Home() {
                       transition={{ delay: 1.2, duration: 0.6 }}
                     >
                       <motion.div
-                        className="h-0.5 w-12 bg-linear-to-r from-transparent to-primary"
-                        animate={{ width: ["0px", "128px", "128px"] }}
+                        className="h-0.5 w-32 bg-linear-to-r from-transparent to-primary"
+                        animate={{ scaleX: [0, 1, 1] }}
                         transition={{ duration: 1.5, delay: 1.3 }}
+                        style={{
+                          transformOrigin: "left",
+                          willChange: "transform",
+                        }}
                       />
                       <motion.div
                         animate={{ scale: [1, 1.1, 1] }}
@@ -603,13 +647,18 @@ export default function Home() {
                           repeat: Infinity,
                           delay: 1.6,
                         }}
+                        style={{ willChange: "transform" }}
                       >
                         <Sparkles className="h-4 w-4 text-primary" />
                       </motion.div>
                       <motion.div
-                        className="h-0.5 w-12 bg-linear-to-l from-transparent to-primary"
-                        animate={{ width: ["0px", "128px", "128px"] }}
+                        className="h-0.5 w-32 bg-linear-to-l from-transparent to-primary"
+                        animate={{ scaleX: [0, 1, 1] }}
                         transition={{ duration: 1.5, delay: 1.5 }}
+                        style={{
+                          transformOrigin: "right",
+                          willChange: "transform",
+                        }}
                       />
                     </motion.div>
                   </motion.h1>
@@ -621,7 +670,7 @@ export default function Home() {
               >
                 Join our community of learners and experts. Ask questions about
                 programming, design, business, and more. Get help from people
-                who've been there.
+                who&apos;ve been there.
               </motion.p>
               <motion.div
                 className="flex flex-wrap gap-4 justify-center"
@@ -630,6 +679,7 @@ export default function Home() {
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  tabIndex={-1}
                 >
                   <Button
                     size="lg"
@@ -643,6 +693,7 @@ export default function Home() {
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  tabIndex={-1}
                 >
                   <Button
                     variant="outline"
@@ -665,7 +716,11 @@ export default function Home() {
             animate="visible"
             transition={{ delay: 0.8 }}
           >
-            <motion.div variants={statsVariants} whileHover={{ y: -5 }}>
+            <motion.div
+              variants={statsVariants}
+              whileHover={{ y: -5 }}
+              style={{ willChange: "transform" }}
+            >
               <Card className="text-center border-2 hover:border-primary/20 transition-colors">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center space-y-2">
@@ -676,6 +731,7 @@ export default function Home() {
                         repeat: Infinity,
                         ease: "linear",
                       }}
+                      style={{ willChange: "transform" }}
                     >
                       <TrendingUp className="h-8 w-8 text-primary" />
                     </motion.div>
@@ -687,7 +743,11 @@ export default function Home() {
                 </CardContent>
               </Card>
             </motion.div>
-            <motion.div variants={statsVariants} whileHover={{ y: -5 }}>
+            <motion.div
+              variants={statsVariants}
+              whileHover={{ y: -5 }}
+              style={{ willChange: "transform" }}
+            >
               <Card className="text-center border-2 hover:border-primary/20 transition-colors">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center space-y-2">
@@ -698,6 +758,7 @@ export default function Home() {
                         repeat: Infinity,
                         ease: "easeInOut",
                       }}
+                      style={{ willChange: "transform" }}
                     >
                       <Users className="h-8 w-8 text-primary" />
                     </motion.div>
@@ -709,7 +770,11 @@ export default function Home() {
                 </CardContent>
               </Card>
             </motion.div>
-            <motion.div variants={statsVariants} whileHover={{ y: -5 }}>
+            <motion.div
+              variants={statsVariants}
+              whileHover={{ y: -5 }}
+              style={{ willChange: "transform" }}
+            >
               <Card className="text-center border-2 hover:border-primary/20 transition-colors">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center space-y-2">
@@ -720,6 +785,7 @@ export default function Home() {
                         repeat: Infinity,
                         ease: "linear",
                       }}
+                      style={{ willChange: "transform" }}
                     >
                       <Star className="h-8 w-8 text-primary" />
                     </motion.div>
@@ -739,6 +805,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.2 }}
+            style={{ willChange: "transform" }}
           >
             {/* Question Form */}
             <motion.div
@@ -746,6 +813,7 @@ export default function Home() {
               id="question-form"
               whileHover={{ y: -2 }}
               transition={{ duration: 0.3 }}
+              style={{ willChange: "transform" }}
             >
               <Card className="flex flex-col w-full shadow-lg hover:shadow-xl transition-shadow duration-300 h-[527]">
                 <motion.div
@@ -774,10 +842,7 @@ export default function Home() {
                   </CardHeader>
                 </motion.div>
                 <CardContent className="flex flex-col flex-1 min-h-0">
-                  <QuestionForm
-                    enableScrolling={true}
-                    onQuestionSubmitted={refreshQuestionsList}
-                  />
+                  <QuestionForm enableScrolling={true} />
                 </CardContent>
               </Card>
             </motion.div>
@@ -787,6 +852,7 @@ export default function Home() {
               className="lg:w-1/2"
               whileHover={{ y: -2 }}
               transition={{ duration: 0.3 }}
+              style={{ willChange: "transform" }}
             >
               <Card className="flex flex-col w-full shadow-lg hover:shadow-xl transition-shadow duration-300 h-[527]">
                 <motion.div
@@ -795,7 +861,7 @@ export default function Home() {
                   transition={{ delay: 1.6 }}
                 >
                   <CardHeader className="shrink-0">
-                    <CardTitle className="flex items-center justify-between">
+                    <CardTitle className="flex items-center justify-between h-5">
                       <span className="flex items-center gap-2">
                         <Users className="h-5 w-5" />
                         Recent Questions
@@ -817,11 +883,11 @@ export default function Home() {
                 </motion.div>
                 <CardContent className="flex flex-col flex-1 min-h-0 px-6">
                   <Suspense fallback={<QuestionsLoading />}>
-                    <QuestionsList
-                      ref={questionsListRef}
+                    <SimpleScrollList
                       autoRefresh={false}
-                      refreshInterval={5000}
                       currentUserId={userId}
+                      showHeader={false}
+                      showSearch={false}
                     />
                   </Suspense>
                 </CardContent>

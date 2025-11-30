@@ -185,6 +185,90 @@ async function getUserByEmail(email: string): Promise<User | null> {
   }
 }
 
+export async function changeEmail(userId: string, newEmail: string, password: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Get current user
+    const user = await redis.hgetall(`user:${userId}`);
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    const currentUser = user as unknown as User;
+
+    // Verify password for security
+    if (!currentUser.passwordHash) {
+      return { success: false, error: "Cannot change email for OAuth users" };
+    }
+
+    const isPasswordValid = await verifyPassword(password, currentUser.passwordHash);
+    if (!isPasswordValid) {
+      return { success: false, error: "Invalid password" };
+    }
+
+    // Check if new email already exists
+    const existingUser = await getUserByEmail(newEmail);
+    if (existingUser && existingUser.id !== userId) {
+      return { success: false, error: "Email already exists" };
+    }
+
+    // Remove old email mapping
+    await redis.del(`user_email:${currentUser.email}`);
+
+    // Update user email and mark as unverified
+    const updatedUser = {
+      ...currentUser,
+      email: newEmail,
+      emailVerified: false,
+      status: 'unverified' as const,
+    };
+
+    await redis.hset(`user:${userId}`, updatedUser as unknown as Record<string, unknown>);
+    await redis.set(`user_email:${newEmail}`, userId);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error changing email:", error);
+    return { success: false, error: "Failed to change email" };
+  }
+}
+
+export async function changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Get current user
+    const user = await redis.hgetall(`user:${userId}`);
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    const currentUser = user as unknown as User;
+
+    // Check if user has password (not OAuth user)
+    if (!currentUser.passwordHash) {
+      return { success: false, error: "Cannot change password for OAuth users" };
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await verifyPassword(currentPassword, currentUser.passwordHash);
+    if (!isCurrentPasswordValid) {
+      return { success: false, error: "Current password is incorrect" };
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update user password
+    await redis.hset(`user:${userId}`, {
+      ...currentUser,
+      passwordHash: newPasswordHash,
+    } as unknown as Record<string, unknown>);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return { success: false, error: "Failed to change password" };
+  }
+}
+
 function generateRandomToken(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
